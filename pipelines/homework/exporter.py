@@ -1,12 +1,22 @@
+import pyarrow as pa
+import pyarrow.parquet as pq
 from mage_ai.settings.repo import get_repo_path
 from mage_ai.io.config import ConfigFileLoader
 from mage_ai.io.google_cloud_storage import GoogleCloudStorage
 from pandas import DataFrame
 from os import path
+import os
 
 if 'data_exporter' not in globals():
     from mage_ai.data_preparation.decorators import data_exporter
 
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/src/creds.json"
+bucket_name= 'zoom-camp-mage'
+project_id = 'first-planet-411908'
+
+table_name = 'green_taxi'
+root_path = f'{bucket_name}/{table_name}'
 
 @data_exporter
 def export_data_to_google_cloud_storage(df: DataFrame, **kwargs) -> None:
@@ -16,19 +26,16 @@ def export_data_to_google_cloud_storage(df: DataFrame, **kwargs) -> None:
 
     Docs: https://docs.mage.ai/design/data-loading#googlecloudstorage
     """
-  
-    now = kwargs.get('execution_date')
-    now_fpath = now.strftime("%Y/%m/%d")
-    
-    config_path = path.join(get_repo_path(), 'io_config.yaml')
-    config_profile = 'default'
+    # data['lpep_pickup_date'] = data['tpep_pickup_datetime'].dt.date
 
-    bucket_name = 'zoom-camp-mage'
-    object_key = f'{now_fpath}/daily-trips.parquet'
-    print(object_key)
+    table = pa.Table.from_pandas(df)
 
-    GoogleCloudStorage.with_config(ConfigFileLoader(config_path, config_profile)).export(
-        df,
-        bucket_name,
-        object_key,
+    gcs = pa.fs.GcsFileSystem()
+
+    pq.write_to_dataset(
+        table,
+        root_path = root_path,
+        partition_cols = ['lpep_pickup_date'],
+        filesystem=gcs
     )
+    

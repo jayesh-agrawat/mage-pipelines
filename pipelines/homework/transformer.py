@@ -1,3 +1,5 @@
+import pandas as pd
+
 if 'transformer' not in globals():
     from mage_ai.data_preparation.decorators import transformer
 if 'test' not in globals():
@@ -19,16 +21,23 @@ def transform(data, *args, **kwargs):
     Returns:
         Anything (e.g. data frame, dictionary, array, int, str, etc.)
     """
-    print(f"Preprocessing : rows with zero passengers {data['passenger_count'].isin([0]).sum()}")
     # Specify your transformation logic here
+    data = data[(data['passenger_count'] > 0) & (data['trip_distance'] > 0)]
+    data['lpep_pickup_date'] = data['lpep_pickup_datetime'].dt.date
 
-    return data[data['passenger_count']> 0]
+    data.columns = (data.columns.str.replace(' ', '_').str.lower())
+    
+    return data
 
 
 @test
 def test_output(output, *args) -> None:
-    assert output['passenger_count'].isin([0]).sum()  == 0, 'There are rides with zero passengers'
     """
     Template code for testing the output of the block.
     """
     assert output is not None, 'The output is undefined'
+    assert 'vendorid' in output.columns, 'vendor_id column is missing'
+    assert output['vendorid'].isin([1, 2]).all(), 'vendor_id has invalid values'
+    assert (output['passenger_count'] > 0).all(), 'passenger_count should be greater than 0'
+    assert (output['trip_distance'] > 0).all(), 'trip_distance should be greater than 0'
+

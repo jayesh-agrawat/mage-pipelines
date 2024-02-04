@@ -1,6 +1,4 @@
-import io
 import pandas as pd
-import requests
 if 'data_loader' not in globals():
     from mage_ai.data_preparation.decorators import data_loader
 if 'test' not in globals():
@@ -12,7 +10,6 @@ def load_data_from_api(*args, **kwargs):
     """
     Template for loading data from API
     """
-    url_yellow_taxi = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2021-01.csv.gz'
     
     taxi_dtypes = {
          'VendorID': 'Int64',
@@ -36,9 +33,16 @@ def load_data_from_api(*args, **kwargs):
     }
 
     # response = requests.get(url)
-    parse_dates_yellow_taxi = ['tpep_pickup_datetime', 'tpep_dropoff_datetime']
+    parse_dates_green_taxi = ['lpep_pickup_datetime', 'lpep_dropoff_datetime']
 
-    return pd.read_csv(url_yellow_taxi, sep=',',compression="gzip",dtype=taxi_dtypes,parse_dates=parse_dates_yellow_taxi)
+    dfs = []
+    for month in range(10, 13):
+        url = f'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2020-{month:02d}.csv.gz'
+        df = pd.read_csv(url, sep=',', compression="gzip", dtype=taxi_dtypes, parse_dates=parse_dates_green_taxi)
+        dfs.append(df)
+
+   
+    return pd.concat(dfs)
 
 
 # @test
