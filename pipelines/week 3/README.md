@@ -16,6 +16,7 @@ as select VendorID ,lpep_pickup_datetime ,lpep_dropoff_datetime ,store_and_fwd_f
 ```
 
 -- Create a partitioned table from external table
+
 ```
 CREATE OR REPLACE TABLE `first-planet-411908.green_taxi.external_green_taxitripdata_partitioned`
 PARTITION BY
