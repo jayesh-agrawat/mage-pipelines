@@ -67,3 +67,4 @@ FROM `first-planet-411908.green_taxi.external_green_taxitripdata_partitioned_clu
 WHERE DATE(date_time) BETWEEN '2022-06-01' AND '2022-06-30'
   AND VendorID=1;
 ```
+
