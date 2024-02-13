@@ -6,6 +6,8 @@ OPTIONS (
   uris = ['gs://green-taxi-zoomcamp/green-taxi.parquet']
 );
 ```
+
+```
 select * from `first-planet-411908.green_taxi.external_green_taxitripdata`;
 ```
 
